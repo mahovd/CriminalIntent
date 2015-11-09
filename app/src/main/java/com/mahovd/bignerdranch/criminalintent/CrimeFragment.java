@@ -17,9 +17,9 @@ import android.widget.EditText;
  * Created by mahovd on 01/11/15.
  */
 public class CrimeFragment extends Fragment {
-    private Crime mCrime;
+    private Crime    mCrime;
     private EditText mTitleField;
-    private Button mDateButton;
+    private Button   mDateButton;
     private CheckBox mSolvedCheckBox;
 
     @Override
