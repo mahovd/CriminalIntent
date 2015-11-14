@@ -8,7 +8,10 @@ import java.util.UUID;
 
 /**
  * Created by mahovd on 06/11/15.
+ * Model
  */
+
+/*Factory for base model class*/
 public class CrimeLab {
 
     //Singleton instance
