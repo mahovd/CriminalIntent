@@ -9,6 +9,7 @@ import java.util.UUID;
 /**
  * Created by mahovd on 06/11/15.
  * Model
+ * Factory for instances of Crime class
  */
 
 /*Factory for base model class*/

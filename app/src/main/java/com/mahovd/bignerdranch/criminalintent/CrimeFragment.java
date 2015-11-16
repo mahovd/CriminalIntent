@@ -15,8 +15,11 @@ import android.widget.EditText;
 
 /**
  * Created by mahovd on 01/11/15.
+ * Controller
+ * Creates fragment with details of a crime
  */
 public class CrimeFragment extends Fragment {
+
     private Crime    mCrime;
     private EditText mTitleField;
     private Button   mDateButton;

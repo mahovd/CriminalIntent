@@ -7,6 +7,8 @@ import android.support.v4.app.FragmentManager;
 
 /**
  * Created by mahovd on 08/11/15.
+ * Controller
+ * Creates activity with one fragment (is inherited by CrimeActivity and CrimeListActivity)
  */
 public abstract class SingleFragmentActivity extends FragmentActivity{
 
