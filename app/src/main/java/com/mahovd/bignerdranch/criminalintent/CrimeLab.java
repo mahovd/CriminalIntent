@@ -30,6 +30,7 @@ public class CrimeLab {
     }
 
     //Constructor, creates new empty ArrayList
+    //then fills it with Crime objects
     private CrimeLab(Context context) {
         mCrimes = new ArrayList<>();
 

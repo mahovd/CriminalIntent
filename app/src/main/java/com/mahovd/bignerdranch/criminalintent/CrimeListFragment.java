@@ -1,9 +1,12 @@
 package com.mahovd.bignerdranch.criminalintent;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by mahovd on 08/11/15.
@@ -25,8 +29,12 @@ import java.util.List;
 
 public class CrimeListFragment extends Fragment {
 
+    private static final int REQUEST_CRIME = 1;
+    private static final String TAG = "CrimeListFragment";
+
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
+    private UUID idChangedItem;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,12 +49,46 @@ public class CrimeListFragment extends Fragment {
 
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        Log.d(TAG, "onActivityResult called");
+
+        if(resultCode != Activity.RESULT_OK){
+            return;
+        }
+        if(requestCode == REQUEST_CRIME){
+            if(data==null){
+                return;
+            }else{
+                Log.d(TAG, "onActivityResult and data is not null");
+                idChangedItem = (UUID) data.getSerializableExtra(CrimeFragment.EXTRA_CRIME_ID);
+                updateUI();
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        //updateUI();
+    }
+
     private void updateUI(){
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
-        mAdapter = new CrimeAdapter(crimes);
-        mCrimeRecyclerView.setAdapter(mAdapter);
+
+        if(mAdapter==null){
+            mAdapter = new CrimeAdapter(crimes);
+            mCrimeRecyclerView.setAdapter(mAdapter);
+        }
+        else{
+            //I've done it! I changed mAdapter.notifyDataSetChanged() to mAdapter.notifyItemChanged
+            mAdapter.notifyItemChanged(mAdapter.mCrimes.indexOf(crimeLab.getCrime(idChangedItem)));
+        }
+
     }
 
     private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -77,7 +119,10 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Toast.makeText(getActivity(),mCrime.getTitle()+" clicked!",Toast.LENGTH_LONG).show();
+            //Toast.makeText(getActivity(),mCrime.getTitle()+" clicked!",Toast.LENGTH_LONG).show();
+            Intent intent = CrimeActivity.newIntent(getActivity(),mCrime.getId());
+            //I think I should use startActivityForResult instead just startActivity
+            startActivityForResult(intent, REQUEST_CRIME);
         }
     }
 
