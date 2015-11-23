@@ -38,12 +38,16 @@ public class CrimeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Restore the main argument from bundle's arguments store
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
 
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
     }
 
     public static CrimeFragment newInstance(UUID crimeId){
+
+        //We have to persist our main argument in fragment arguments,
+        //because at this way it won't be thrown away if configuration changes
         Bundle args = new Bundle();
         args.putSerializable(ARG_CRIME_ID, crimeId);
 
