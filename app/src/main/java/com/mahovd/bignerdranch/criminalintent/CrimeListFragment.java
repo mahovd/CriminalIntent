@@ -120,7 +120,7 @@ public class CrimeListFragment extends Fragment {
         @Override
         public void onClick(View v) {
             //Toast.makeText(getActivity(),mCrime.getTitle()+" clicked!",Toast.LENGTH_LONG).show();
-            Intent intent = CrimeActivity.newIntent(getActivity(),mCrime.getId());
+            Intent intent = CrimePagerActivity.newIntent(getActivity(),mCrime.getId());
             //I think I should use startActivityForResult instead just startActivity
             startActivityForResult(intent, REQUEST_CRIME);
         }
