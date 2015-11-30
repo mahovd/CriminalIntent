@@ -52,7 +52,8 @@ public class CrimeListFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        Log.d(TAG, "onActivityResult called");
+        Log.d(TAG, "onActivityResult called "+"requestCode: "+requestCode);
+
 
         if(resultCode != Activity.RESULT_OK){
             return;
@@ -71,6 +72,7 @@ public class CrimeListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG,"onResume was called");
 
         //updateUI();
     }
