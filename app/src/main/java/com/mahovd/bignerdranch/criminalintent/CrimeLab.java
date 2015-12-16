@@ -21,6 +21,10 @@ public class CrimeLab {
     //List of crimes
     private List<Crime> mCrimes;
 
+    public void addCrime(Crime c){
+        mCrimes.add(c);
+    }
+
     //Return instance of singleton
     public static CrimeLab get(Context context) {
         if(sCrimeLab == null){
@@ -33,14 +37,6 @@ public class CrimeLab {
     //then fills it with Crime objects
     private CrimeLab(Context context) {
         mCrimes = new ArrayList<>();
-
-        /*Generating crimes*/
-        for (int i=0; i<100; i++){
-            Crime crime = new Crime();
-            crime.setTitle("Crime #"+i);
-            crime.setSolved(i%2 ==0); //Every other one
-            mCrimes.add(crime);
-        }
 
     }
 
