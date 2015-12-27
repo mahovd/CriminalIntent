@@ -3,12 +3,16 @@ package com.mahovd.bignerdranch.criminalintent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.MenuItem;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,8 +23,10 @@ import java.util.UUID;
  */
 public class CrimePagerActivity extends AppCompatActivity {
 
+    private static final String TAG = "CrimePagerActivity";
 
     private static final String EXTRA_CRIME_ID = "com.mahovd.bignerdranch.criminalintent.crime_id";
+
     private ViewPager mViewPager;
     private List<Crime> mCrimes;
 
@@ -28,9 +34,32 @@ public class CrimePagerActivity extends AppCompatActivity {
     //It uses when you need to edit some record of crime from the CrimeList
     public static Intent newIntent(Context packageContext, UUID crimeID){
         Intent intent = new Intent(packageContext,CrimePagerActivity.class);
-        intent.putExtra(EXTRA_CRIME_ID,crimeID);
+        intent.putExtra(EXTRA_CRIME_ID, crimeID);
+
         return intent;
     }
+
+    /*
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case android.R.id.home:
+            //I can use several variants of behaviour
+            //I chose the the variant with Manifest
+            //I could use 1) finish, 2) Intent with flags 3) onBackPressed (implements finish())
+
+                //Intent intent = NavUtils.getParentActivityIntent(this);
+                //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                //NavUtils.navigateUpTo(this,intent);
+
+                //onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+   */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,4 +96,5 @@ public class CrimePagerActivity extends AppCompatActivity {
         }
 
     }
+
 }

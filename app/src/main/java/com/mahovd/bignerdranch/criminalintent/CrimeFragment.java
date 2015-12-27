@@ -10,6 +10,9 @@ import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -36,11 +39,14 @@ public class CrimeFragment extends Fragment {
     private static final String TAG = "CrimeFragment";
     private static final String DIALOG_DATE = "DialogDate";
     public static final String EXTRA_CRIME_ID = "ru.mahovd.bignerdranch.criminalintent.crime_id";
+    public static final String EXTRA_CRIME_DELETED = "ru.mahovd.bignerdranch.criminalintent.del_mark";
     private static final int REQUEST_DATE = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
 
         //Restore the main argument from bundle's arguments store
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
@@ -72,6 +78,32 @@ public class CrimeFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_crime,menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case R.id.menu_item_del_crime:
+                //TODO:If it's creating mode I should delete the crime
+                //CrimeLab.get(getActivity()).delCrime(mCrime);
+                returnResult(true);
+                getActivity().finish();
+                return true;
+            case android.R.id.home:
+                //TODO: I shouldn't forget about Back button
+                returnResult(false);
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
+
+    }
+
     private void updateDate() {
         mDateButton.setText(DateFormat.format("cccc, MMM d, yyyy HH:mm", mCrime.getDate()));
     }
@@ -98,7 +130,7 @@ public class CrimeFragment extends Fragment {
             public void afterTextChanged(Editable s) {
                 //This one too
                 Log.d(TAG,"afterTextChanged was called");
-                returnResult();
+                //returnResult(false);
             }
         });
 
@@ -117,7 +149,7 @@ public class CrimeFragment extends Fragment {
                 DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
                 dialog.setTargetFragment(CrimeFragment.this,REQUEST_DATE);
                 dialog.show(manager,DIALOG_DATE);
-                returnResult();
+                //returnResult(false);
             }
         });
 
@@ -130,7 +162,7 @@ public class CrimeFragment extends Fragment {
                 //Set the crime's solved property
                 mCrime.setSolved(isChecked);
                 Log.d(TAG, "crime_solved was changed");
-                returnResult();
+                //returnResult(false);
             }
         });
 
@@ -139,9 +171,10 @@ public class CrimeFragment extends Fragment {
         return v;
     }
 
-    private void returnResult(){
+    private void returnResult(boolean isMarkAsDeleted){
         Intent data = new Intent();
         data.putExtra(EXTRA_CRIME_ID,mCrime.getId());
+        data.putExtra(EXTRA_CRIME_DELETED,isMarkAsDeleted);
         getActivity().setResult(Activity.RESULT_OK,data);
     }
 

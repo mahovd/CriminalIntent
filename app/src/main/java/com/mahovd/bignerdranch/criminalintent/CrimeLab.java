@@ -25,6 +25,10 @@ public class CrimeLab {
         mCrimes.add(c);
     }
 
+    public void delCrime(Crime c){
+        mCrimes.remove(c);
+    }
+
     //Return instance of singleton
     public static CrimeLab get(Context context) {
         if(sCrimeLab == null){

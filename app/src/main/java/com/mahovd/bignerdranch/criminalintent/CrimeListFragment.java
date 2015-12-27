@@ -36,10 +36,12 @@ public class CrimeListFragment extends Fragment {
 
     private static final int REQUEST_CRIME = 1;
     private static final String TAG = "CrimeListFragment";
+    private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
 
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
     private UUID idChangedItem;
+    private boolean isChangedItemWasDeleted = false;
 
     private boolean mSubtitleVisible;
 
@@ -53,11 +55,22 @@ public class CrimeListFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(SAVED_SUBTITLE_VISIBLE,mSubtitleVisible);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_crime_list,container,false);
 
         mCrimeRecyclerView = (RecyclerView) view.findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+
+        if(savedInstanceState!=null){
+            mSubtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
+        }
 
         updateUI();
 
@@ -80,6 +93,9 @@ public class CrimeListFragment extends Fragment {
             }else{
                 Log.d(TAG, "onActivityResult and data is not null");
                 idChangedItem = (UUID) data.getSerializableExtra(CrimeFragment.EXTRA_CRIME_ID);
+                if(data.getBooleanExtra(CrimeFragment.EXTRA_CRIME_DELETED,false)){
+                   isChangedItemWasDeleted = true;
+                }
                 updateUI();
             }
         }
@@ -106,11 +122,19 @@ public class CrimeListFragment extends Fragment {
                 Crime crime = new Crime();
                 CrimeLab.get(getActivity()).addCrime(crime);
                 Intent intent = CrimePagerActivity.newIntent(getActivity(),crime.getId());
+
+                //TODO: I should add information about type of
+                //TODO: CrimeFragment call. If I do it to insert the new one
+                //TODO: I should delete the Crime if user press Delete record
+                intent.putExtra("INSERT_MODE",true);
+
                 startActivity(intent);
                 return true;
             case R.id.menu_item_show_subtitle:
 
+                //Sets mSubtitleVisible = true
                 mSubtitleVisible = !mSubtitleVisible;
+                //Recreates the menu (calls onCreateOptionsMenu)
                 getActivity().invalidateOptionsMenu();
 
                 updateSubtitle();
@@ -152,9 +176,19 @@ public class CrimeListFragment extends Fragment {
             mCrimeRecyclerView.setAdapter(mAdapter);
         }
         else{
-            //I've done it! I changed mAdapter.notifyDataSetChanged() to mAdapter.notifyItemChanged
-            mAdapter.notifyItemChanged(mAdapter.mCrimes.indexOf(crimeLab.getCrime(idChangedItem)));
+            //I've done it! I've changed mAdapter.notifyDataSetChanged() to mAdapter.notifyItemChanged
+            int position = mAdapter.mCrimes.indexOf(crimeLab.getCrime(idChangedItem));
+            if(isChangedItemWasDeleted){
+                mAdapter.notifyItemRemoved(mAdapter.mCrimes.indexOf(crimeLab.getCrime(idChangedItem)));
+                crimes.remove(crimeLab.getCrime(idChangedItem));
+                isChangedItemWasDeleted = false;
+            }else{
+                mAdapter.notifyItemChanged(mAdapter.mCrimes.indexOf(crimeLab.getCrime(idChangedItem)));
+            }
+
         }
+
+        updateSubtitle();
 
     }
 
