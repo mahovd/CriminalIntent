@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,7 +19,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,8 +38,10 @@ public class CrimeListFragment extends Fragment {
     private static final int REQUEST_CRIME = 1;
     private static final String TAG = "CrimeListFragment";
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
+    private static final String INSERT_MODE = "com.mahovd.bignerdranch.insertMode";
 
     private RecyclerView mCrimeRecyclerView;
+    private TextView mEmptyView;
     private CrimeAdapter mAdapter;
     private UUID idChangedItem;
     private boolean isChangedItemWasDeleted = false;
@@ -62,10 +65,13 @@ public class CrimeListFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_crime_list,container,false);
 
         mCrimeRecyclerView = (RecyclerView) view.findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        mEmptyView = (TextView) view.findViewById(R.id.empty_view);
 
 
         if(savedInstanceState!=null){
@@ -122,11 +128,7 @@ public class CrimeListFragment extends Fragment {
                 Crime crime = new Crime();
                 CrimeLab.get(getActivity()).addCrime(crime);
                 Intent intent = CrimePagerActivity.newIntent(getActivity(),crime.getId());
-
-                //TODO: I should add information about type of
-                //TODO: CrimeFragment call. If I do it to insert the new one
-                //TODO: I should delete the Crime if user press Delete record
-                intent.putExtra("INSERT_MODE",true);
+                intent.putExtra(INSERT_MODE,true);
 
                 startActivity(intent);
                 return true;
@@ -148,7 +150,8 @@ public class CrimeListFragment extends Fragment {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         int crimeCount = crimeLab.getCrimes().size();
 
-        String subtitle = getString(R.string.subtitle_format, crimeCount);
+        String subtitle = getResources().getQuantityString(R.plurals.subtitle_plural,
+                crimeCount,crimeCount);
 
         if(!mSubtitleVisible){
             subtitle = null;
@@ -170,14 +173,27 @@ public class CrimeListFragment extends Fragment {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
+        if (crimes.isEmpty()){
+            mCrimeRecyclerView.setVisibility(View.GONE);
+            mEmptyView.setVisibility(View.VISIBLE);
+        }else{
+            mCrimeRecyclerView.setVisibility(View.VISIBLE);
+            mEmptyView.setVisibility(View.GONE);
+        }
+
 
         if(mAdapter==null){
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
+
+
+            //TODO: Add "Delete" button that should appear behind the swiped out View
+            ItemTouchHelper.Callback callback = new CrimeTouchHelper(mAdapter);
+            ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(callback);
+            mItemTouchHelper.attachToRecyclerView(mCrimeRecyclerView);
         }
         else{
             //I've done it! I've changed mAdapter.notifyDataSetChanged() to mAdapter.notifyItemChanged
-            int position = mAdapter.mCrimes.indexOf(crimeLab.getCrime(idChangedItem));
             if(isChangedItemWasDeleted){
                 mAdapter.notifyItemRemoved(mAdapter.mCrimes.indexOf(crimeLab.getCrime(idChangedItem)));
                 crimes.remove(crimeLab.getCrime(idChangedItem));
@@ -254,9 +270,57 @@ public class CrimeListFragment extends Fragment {
             holder.bindCrime(crime);
 
         }
+
+        public void onItemRemove(int position){
+            mCrimes.remove(position);
+            notifyItemRemoved(position);
+        }
+
+        //TODO: Method onItemMove isn't called. Fix it.
+        public boolean onItemMove(int fromPosition, int toPosition){
+
+            if(fromPosition < toPosition) {
+                for(int i = fromPosition; i < toPosition; i++) {
+                    Collections.swap(mCrimes,i,i+1);
+                }
+            } else{
+                for(int i = fromPosition; i > toPosition; i--){
+                    Collections.swap(mCrimes,i,i-1);
+                }
+            }
+
+            notifyItemMoved(fromPosition,toPosition);
+
+            return true;
+        }
+
     }
 
+    private class CrimeTouchHelper extends ItemTouchHelper.SimpleCallback{
+        private CrimeAdapter mCrimeAdapter;
 
 
+        public CrimeTouchHelper(CrimeAdapter crimeAdapter) {
+            super(ItemTouchHelper.UP|ItemTouchHelper.DOWN, ItemTouchHelper.LEFT|ItemTouchHelper.RIGHT);
+            mCrimeAdapter = crimeAdapter;
+        }
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+
+            Log.d(TAG,"onMove was called");
+            mCrimeAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+
+            return true;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+
+            Log.d(TAG,"onSwiped was called");
+            mCrimeAdapter.onItemRemove(viewHolder.getAdapterPosition());
+            updateUI();
+        }
+    }
 
 }

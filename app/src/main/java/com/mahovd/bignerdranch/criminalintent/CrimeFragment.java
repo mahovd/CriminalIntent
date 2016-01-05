@@ -89,13 +89,17 @@ public class CrimeFragment extends Fragment {
 
         switch (item.getItemId()){
             case R.id.menu_item_del_crime:
-                //TODO:If it's creating mode I should delete the crime
-                //CrimeLab.get(getActivity()).delCrime(mCrime);
-                returnResult(true);
+                if(CrimePagerActivity.isWorkModeInsert){
+                    CrimeLab.get(getActivity()).delCrime(mCrime);
+                }else{
+                    returnResult(true);
+                }
                 getActivity().finish();
                 return true;
             case android.R.id.home:
                 //TODO: I shouldn't forget about Back button
+                //When I hit it in edit_mode, only first element will be updated
+                //I should fix it
                 returnResult(false);
             default:
                 return super.onOptionsItemSelected(item);

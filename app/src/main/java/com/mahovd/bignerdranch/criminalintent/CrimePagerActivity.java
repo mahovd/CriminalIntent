@@ -26,6 +26,8 @@ public class CrimePagerActivity extends AppCompatActivity {
     private static final String TAG = "CrimePagerActivity";
 
     private static final String EXTRA_CRIME_ID = "com.mahovd.bignerdranch.criminalintent.crime_id";
+    private static final String INSERT_MODE = "com.mahovd.bignerdranch.insertMode";
+    public static boolean isWorkModeInsert = false;
 
     private ViewPager mViewPager;
     private List<Crime> mCrimes;
@@ -39,28 +41,6 @@ public class CrimePagerActivity extends AppCompatActivity {
         return intent;
     }
 
-    /*
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()){
-            case android.R.id.home:
-            //I can use several variants of behaviour
-            //I chose the the variant with Manifest
-            //I could use 1) finish, 2) Intent with flags 3) onBackPressed (implements finish())
-
-                //Intent intent = NavUtils.getParentActivityIntent(this);
-                //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                //NavUtils.navigateUpTo(this,intent);
-
-                //onBackPressed();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-   */
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +48,8 @@ public class CrimePagerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_crime_pager);
 
         final UUID crimeId = (UUID) getIntent().getSerializableExtra(EXTRA_CRIME_ID);
+        isWorkModeInsert = getIntent().getBooleanExtra(INSERT_MODE,false);
+
 
         mViewPager = (ViewPager) findViewById(R.id.activity_crime_pager_view_pager);
         mCrimes = CrimeLab.get(this).getCrimes();
