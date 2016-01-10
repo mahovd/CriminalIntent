@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.Collections;
@@ -170,6 +171,7 @@ public class CrimeListFragment extends Fragment {
     }
 
     private void updateUI(){
+
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
@@ -195,12 +197,24 @@ public class CrimeListFragment extends Fragment {
         else{
             //I've done it! I've changed mAdapter.notifyDataSetChanged() to mAdapter.notifyItemChanged
             if(isChangedItemWasDeleted){
-                mAdapter.notifyItemRemoved(mAdapter.mCrimes.indexOf(crimeLab.getCrime(idChangedItem)));
+                mAdapter.notifyItemRemoved(mAdapter.getItemIndexById(idChangedItem));
                 crimes.remove(crimeLab.getCrime(idChangedItem));
+                crimeLab.delCrime(crimeLab.getCrime(idChangedItem));
                 isChangedItemWasDeleted = false;
-            }else{
-                mAdapter.notifyItemChanged(mAdapter.mCrimes.indexOf(crimeLab.getCrime(idChangedItem)));
             }
+
+
+            //If we have item that was changed than we should use notifyItemChanged
+            if(idChangedItem != null){
+                mAdapter.setCrimes(crimes);
+                mAdapter.notifyItemChanged(mAdapter.getItemIndexById(idChangedItem));
+                idChangedItem = null;
+            }else{
+                //TODO: At this point I don't know exactly if any item was inserted. I need to fix it.
+                mAdapter.setCrimes(crimes);
+                mAdapter.notifyDataSetChanged();
+            }
+
 
         }
 
@@ -224,6 +238,15 @@ public class CrimeListFragment extends Fragment {
             mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_crime_title_text_view);
             mDateTextView = (TextView) itemView.findViewById(R.id.list_item_crime_date_text_view);
             mSolvedCheckBox = (CheckBox) itemView.findViewById(R.id.list_item_crime_check_box);
+
+            mSolvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    Log.d(TAG,"onChecked was changed");
+                    mCrime.setSolved(isChecked);
+                    CrimeLab.get(getActivity()).updateCrime(mCrime);
+                }
+            });
 
         }
 
@@ -250,10 +273,26 @@ public class CrimeListFragment extends Fragment {
         public CrimeAdapter(List<Crime> crimes){
             mCrimes = crimes;
         }
+        
+        public int getItemIndexById(UUID crimeId){
+
+            for (Crime crime:mCrimes
+                 ) {
+                if(crime.getId().equals(crimeId)){
+                    return mCrimes.indexOf(crime);
+                }
+            }
+
+            return -1;
+        }
 
         @Override
         public int getItemCount() {
             return mCrimes.size();
+        }
+
+        public void setCrimes(List<Crime> crimes){
+            mCrimes = crimes;
         }
 
         @Override
@@ -317,7 +356,8 @@ public class CrimeListFragment extends Fragment {
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
 
-            Log.d(TAG,"onSwiped was called");
+            Log.d(TAG, "onSwiped was called");
+            CrimeLab.get(getActivity()).delCrime(mCrimeAdapter.mCrimes.get(viewHolder.getAdapterPosition()));
             mCrimeAdapter.onItemRemove(viewHolder.getAdapterPosition());
             updateUI();
         }
