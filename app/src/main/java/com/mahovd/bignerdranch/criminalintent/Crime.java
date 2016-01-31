@@ -16,6 +16,7 @@ public class Crime {
     private Date mDate;
     private boolean mSolved;
     private String mSuspect;
+    private Long mSuspectId;
 
     /*Constructor*/
     public Crime(){
@@ -59,7 +60,15 @@ public class Crime {
         return mSuspect;
     }
 
+    public Long getSuspectId(){
+        return mSuspectId;
+    }
+
     public void setSuspect(String suspect) {
         mSuspect = suspect;
+    }
+
+    public void setSuspectId(Long suspectId){
+        mSuspectId = suspectId;
     }
 }
