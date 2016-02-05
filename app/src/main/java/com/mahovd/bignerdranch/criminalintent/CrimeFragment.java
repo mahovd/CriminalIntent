@@ -275,7 +275,7 @@ public class CrimeFragment extends Fragment {
         }
 
         PackageManager packageManager = getActivity().getPackageManager();
-        if(packageManager.resolveActivity(pickContact,PackageManager.MATCH_DEFAULT_ONLY) == null){
+        if(packageManager.resolveActivity(pickContact, PackageManager.MATCH_DEFAULT_ONLY) == null){
             mSuspectButoon.setEnabled(false);
         }
 
@@ -283,11 +283,20 @@ public class CrimeFragment extends Fragment {
         if(mCrime.getSuspect() == null){
             mCallSuspectButton.setEnabled(false);
         }
+
         mCallSuspectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String suspectPhoneNumber = getSuspectPhone(mCrime.getSuspectId());
-                Toast.makeText(getActivity(),suspectPhoneNumber,Toast.LENGTH_LONG).show();
+
+                Uri number = Uri.parse("tel:"+suspectPhoneNumber);
+
+                final Intent callSuspect = new Intent(Intent.ACTION_DIAL, number);
+
+                //Toast.makeText(getActivity(),suspectPhoneNumber,Toast.LENGTH_LONG).show();
+                startActivity(callSuspect);
+
+
             }
         });
 
@@ -306,12 +315,16 @@ public class CrimeFragment extends Fragment {
         String suspectPnone = "";
 
         Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-        //Uri uri = ContentUris.withAppendedId(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,suspectId);
 
         String[] queryFields = new String[] {ContactsContract.CommonDataKinds.Phone.NUMBER};
-        String mSelectionClause = ContactsContract.CommonDataKinds.Phone._ID +" = "+suspectId;
 
-        Cursor cursor = getActivity().getContentResolver().query(uri,queryFields,mSelectionClause,null,null);
+        String mSelectionClause = ContactsContract.CommonDataKinds.Phone.RAW_CONTACT_ID +" = ?" +
+                " AND  " + ContactsContract.CommonDataKinds.Phone.MIMETYPE + "='"
+                + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'";
+
+        String[] mSelectionArgs = new String[] {String.valueOf(suspectId)};
+
+        Cursor cursor = getActivity().getContentResolver().query(uri,queryFields,mSelectionClause,mSelectionArgs,null);
 
 
         try{
