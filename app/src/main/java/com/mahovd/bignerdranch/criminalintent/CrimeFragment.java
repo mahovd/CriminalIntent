@@ -1,6 +1,7 @@
 package com.mahovd.bignerdranch.criminalintent;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -24,6 +25,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.net.URI;
 import java.util.Date;
@@ -42,6 +44,7 @@ public class CrimeFragment extends Fragment {
     private CheckBox mSolvedCheckBox;
     private Button   mReportButton;
     private Button   mSuspectButoon;
+    private Button   mCallSuspectButton;
 
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String TAG = "CrimeFragment";
@@ -97,7 +100,7 @@ public class CrimeFragment extends Fragment {
             Uri contractUri = data.getData();
 
             //Specify which fields you want your query to return values for
-            String[] queryFields = new String[]{ContactsContract.Contacts.DISPLAY_NAME};
+            String[] queryFields = new String[]{ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts._ID};
 
             //Perform your query - the contactUri is like a where clause here
             Cursor c = getActivity().getContentResolver().query(contractUri,queryFields,null,null,null);
@@ -111,8 +114,11 @@ public class CrimeFragment extends Fragment {
                 //Pull out the first column of the first row of data that is your suspect's name
                 c.moveToFirst();
                 String suspect = c.getString(0);
+                Long suspectId = c.getLong(1);
                 mCrime.setSuspect(suspect);
+                mCrime.setSuspectId(suspectId);
                 mSuspectButoon.setText(suspect);
+                mCallSuspectButton.setEnabled(true);
             } finally {
                 c.close();
             }
@@ -269,9 +275,30 @@ public class CrimeFragment extends Fragment {
         }
 
         PackageManager packageManager = getActivity().getPackageManager();
-        if(packageManager.resolveActivity(pickContact,PackageManager.MATCH_DEFAULT_ONLY) == null){
+        if(packageManager.resolveActivity(pickContact, PackageManager.MATCH_DEFAULT_ONLY) == null){
             mSuspectButoon.setEnabled(false);
         }
+
+        mCallSuspectButton = (Button) v.findViewById(R.id.call_suspect);
+        if(mCrime.getSuspect() == null){
+            mCallSuspectButton.setEnabled(false);
+        }
+
+        mCallSuspectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String suspectPhoneNumber = getSuspectPhone(mCrime.getSuspectId());
+
+                Uri number = Uri.parse("tel:"+suspectPhoneNumber);
+
+                final Intent callSuspect = new Intent(Intent.ACTION_DIAL, number);
+
+                //Toast.makeText(getActivity(),suspectPhoneNumber,Toast.LENGTH_LONG).show();
+                startActivity(callSuspect);
+
+
+            }
+        });
 
         return v;
     }
@@ -281,6 +308,39 @@ public class CrimeFragment extends Fragment {
         data.putExtra(EXTRA_CRIME_ID,mCrime.getId());
         data.putExtra(EXTRA_CRIME_DELETED,isMarkAsDeleted);
         getActivity().setResult(Activity.RESULT_OK,data);
+    }
+
+    private String getSuspectPhone(Long suspectId){
+
+        String suspectPnone = "";
+
+        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+
+        String[] queryFields = new String[] {ContactsContract.CommonDataKinds.Phone.NUMBER};
+
+        String mSelectionClause = ContactsContract.CommonDataKinds.Phone.RAW_CONTACT_ID +" = ?" +
+                " AND  " + ContactsContract.CommonDataKinds.Phone.MIMETYPE + "='"
+                + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'";
+
+        String[] mSelectionArgs = new String[] {String.valueOf(suspectId)};
+
+        Cursor cursor = getActivity().getContentResolver().query(uri,queryFields,mSelectionClause,mSelectionArgs,null);
+
+
+        try{
+            //Double-check that you actually got results
+            if(cursor.getCount() == 0){
+                return suspectPnone;
+            }
+            //Pull out the first column of the first row of data that is your suspect's name
+            cursor.moveToFirst();
+            suspectPnone = cursor.getString(0);
+        } finally {
+            cursor.close();
+        }
+
+        return suspectPnone;
+
     }
 
 }
