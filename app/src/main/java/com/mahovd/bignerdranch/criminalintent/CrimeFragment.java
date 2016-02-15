@@ -1,13 +1,13 @@
 package com.mahovd.bignerdranch.criminalintent;
 
 import android.app.Activity;
-import android.content.ContentUris;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ShareCompat;
@@ -25,9 +25,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 
-import java.net.URI;
+import java.io.File;
 import java.util.Date;
 import java.util.UUID;
 
@@ -39,12 +40,15 @@ import java.util.UUID;
 public class CrimeFragment extends Fragment {
 
     private Crime    mCrime;
+    private File     mPhotoFile;
     private EditText mTitleField;
     private Button   mDateButton;
     private CheckBox mSolvedCheckBox;
     private Button   mReportButton;
-    private Button   mSuspectButoon;
+    private Button   mSuspectButton;
     private Button   mCallSuspectButton;
+    private ImageButton mPhotoButton;
+    private ImageView mPhotoView;
 
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String TAG = "CrimeFragment";
@@ -53,6 +57,7 @@ public class CrimeFragment extends Fragment {
     public static final String EXTRA_CRIME_DELETED = "ru.mahovd.bignerdranch.criminalintent.del_mark";
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_CONTACT = 1;
+    private static final int REQUEST_PHOTO = 2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,6 +69,7 @@ public class CrimeFragment extends Fragment {
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
 
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
+        mPhotoFile = CrimeLab.get(getActivity()).getPhotoFile(mCrime);
     }
 
     @Override
@@ -117,7 +123,7 @@ public class CrimeFragment extends Fragment {
                 Long suspectId = c.getLong(1);
                 mCrime.setSuspect(suspect);
                 mCrime.setSuspectId(suspectId);
-                mSuspectButoon.setText(suspect);
+                mSuspectButton.setText(suspect);
                 mCallSuspectButton.setEnabled(true);
             } finally {
                 c.close();
@@ -212,6 +218,27 @@ public class CrimeFragment extends Fragment {
             }
         });
 
+        mPhotoButton = (ImageButton) v.findViewById(R.id.crime_camera);
+
+        final Intent captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        boolean canTakePhoto = mPhotoFile != null && captureImage.resolveActivity(getActivity().getPackageManager()) != null;
+        mPhotoButton.setEnabled(canTakePhoto);
+
+        if(canTakePhoto){
+            Uri uri = Uri.fromFile(mPhotoFile);
+            captureImage.putExtra(MediaStore.EXTRA_OUTPUT,uri);
+        }
+
+        mPhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(captureImage,REQUEST_PHOTO);
+            }
+        });
+
+        mPhotoView = (ImageView) v.findViewById(R.id.crime_photo);
+
         mDateButton = (Button) v.findViewById(R.id.crime_date);
 
         //mDateButton.setText(DateFormat.getMediumDateFormat(getContext()).format(mCrime.getDate()));
@@ -260,23 +287,23 @@ public class CrimeFragment extends Fragment {
 
         final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
 
-        mSuspectButoon = (Button) v.findViewById(R.id.crime_suspect);
-        mSuspectButoon.setOnClickListener(new View.OnClickListener() {
+        mSuspectButton = (Button) v.findViewById(R.id.crime_suspect);
+        mSuspectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                startActivityForResult(pickContact,REQUEST_CONTACT);
+                startActivityForResult(pickContact, REQUEST_CONTACT);
 
             }
         });
 
         if(mCrime.getSuspect() != null){
-            mSuspectButoon.setText(mCrime.getSuspect());
+            mSuspectButton.setText(mCrime.getSuspect());
         }
 
         PackageManager packageManager = getActivity().getPackageManager();
         if(packageManager.resolveActivity(pickContact, PackageManager.MATCH_DEFAULT_ONLY) == null){
-            mSuspectButoon.setEnabled(false);
+            mSuspectButton.setEnabled(false);
         }
 
         mCallSuspectButton = (Button) v.findViewById(R.id.call_suspect);
