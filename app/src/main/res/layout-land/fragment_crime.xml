@@ -8,6 +8,8 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
+
+    <!--
     
     <TextView
         android:layout_width="match_parent"
@@ -20,6 +22,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/crime_title_hint"/>
+
+        -->
+
+    <include layout="@layout/view_camera_and_title"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -38,7 +44,6 @@
             android:id="@+id/crime_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="80dp"
             android:layout_weight="1"/>
 
         <CheckBox

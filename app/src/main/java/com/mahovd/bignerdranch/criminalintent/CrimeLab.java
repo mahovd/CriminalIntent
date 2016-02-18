@@ -4,11 +4,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 
 import com.mahovd.bignerdranch.criminalintent.database.CrimeBaseHelper;
 import com.mahovd.bignerdranch.criminalintent.database.CrimeCursorWrapper;
 import com.mahovd.bignerdranch.criminalintent.database.CrimeDbSchema.CrimeTable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -32,14 +34,14 @@ public class CrimeLab {
 
         ContentValues values = getContentValues(c);
 
-        mDatabase.insert(CrimeTable.NAME,null,values);
+        mDatabase.insert(CrimeTable.NAME, null, values);
     }
 
     public void delCrime(Crime c){
 
         String uuidString = c.getId().toString();
 
-        mDatabase.delete(CrimeTable.NAME,CrimeTable.Cols.UUID +" = ?", new String[]{uuidString});
+        mDatabase.delete(CrimeTable.NAME, CrimeTable.Cols.UUID + " = ?", new String[]{uuidString});
 
     }
 
@@ -85,7 +87,7 @@ public class CrimeLab {
     public Crime getCrime(UUID id){
 
         CrimeCursorWrapper cursor = queryCrimes(CrimeTable.Cols.UUID + " =?",
-                new String[] {id.toString()});
+                new String[]{id.toString()});
 
         try{
             if (cursor.getCount() == 0){
@@ -98,6 +100,16 @@ public class CrimeLab {
         } finally {
             cursor.close();
         }
+    }
+
+    public File getPhotoFile(Crime crime){
+        File externalFilesDir = mContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        if(externalFilesDir==null){
+            return null;
+        }
+
+        return new File(externalFilesDir,crime.getPhotoFileName());
     }
 
     public void updateCrime(Crime crime){
