@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -130,6 +131,10 @@ public class CrimeFragment extends Fragment {
             }
         }
 
+        if(requestCode==REQUEST_PHOTO){
+            updatePhotoView();
+        }
+
     }
 
     @Override
@@ -192,6 +197,15 @@ public class CrimeFragment extends Fragment {
 
     }
 
+    private void updatePhotoView(){
+        if(mPhotoFile==null || !mPhotoFile.exists()){
+            mPhotoView.setImageDrawable(null);
+        }else {
+            Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(),getActivity());
+            mPhotoView.setImageBitmap(bitmap);
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_crime,container,false);
@@ -238,6 +252,7 @@ public class CrimeFragment extends Fragment {
         });
 
         mPhotoView = (ImageView) v.findViewById(R.id.crime_photo);
+        updatePhotoView();
 
         mDateButton = (Button) v.findViewById(R.id.crime_date);
 
