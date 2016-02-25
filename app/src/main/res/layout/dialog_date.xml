@@ -9,16 +9,18 @@
     <DatePicker
         android:id="@+id/dialog_date_date_picker"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:calendarViewShown="false"
-        android:layout_margin="20dp">
+        android:layout_margin="20dp"
+        android:layout_weight="1">
     </DatePicker>
 
     <TimePicker
         android:id="@+id/dialog_date_time_picker"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_margin="20dp"
+        android:layout_weight="1"
         >
     </TimePicker>
 
