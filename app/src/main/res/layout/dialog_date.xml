@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--View, some kind of dialog that helps user to pick date and time of the crime-->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -9,17 +14,21 @@
     <DatePicker
         android:id="@+id/dialog_date_date_picker"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:calendarViewShown="false"
-        android:layout_margin="20dp">
+        android:layout_margin="20dp"
+        android:layout_weight="1"
+        >
     </DatePicker>
 
     <TimePicker
         android:id="@+id/dialog_date_time_picker"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_margin="20dp"
+        android:layout_weight="1"
         >
     </TimePicker>
 
 </LinearLayout>
+    </ScrollView>

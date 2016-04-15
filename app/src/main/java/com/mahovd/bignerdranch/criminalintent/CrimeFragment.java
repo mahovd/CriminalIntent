@@ -54,6 +54,7 @@ public class CrimeFragment extends Fragment {
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String TAG = "CrimeFragment";
     private static final String DIALOG_DATE = "DialogDate";
+    private static final String IMAGE_PREVIEW = "ImagePreview";
     public static final String EXTRA_CRIME_ID = "ru.mahovd.bignerdranch.criminalintent.crime_id";
     public static final String EXTRA_CRIME_DELETED = "ru.mahovd.bignerdranch.criminalintent.del_mark";
     private static final int REQUEST_DATE = 0;
@@ -253,6 +254,20 @@ public class CrimeFragment extends Fragment {
 
         mPhotoView = (ImageView) v.findViewById(R.id.crime_photo);
         updatePhotoView();
+
+
+
+        if (mPhotoFile!=null && mPhotoFile.exists()){
+            mPhotoView.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    FragmentManager manager = getFragmentManager();
+                    ImagePreviewFragment imagePreview = ImagePreviewFragment.newInstance(mPhotoFile);
+                    imagePreview.show(manager,IMAGE_PREVIEW);
+                }
+            });
+        }
+
 
         mDateButton = (Button) v.findViewById(R.id.crime_date);
 
