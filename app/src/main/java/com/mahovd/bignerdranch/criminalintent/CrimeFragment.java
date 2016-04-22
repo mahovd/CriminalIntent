@@ -22,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -50,6 +51,7 @@ public class CrimeFragment extends Fragment {
     private Button   mCallSuspectButton;
     private ImageButton mPhotoButton;
     private ImageView mPhotoView;
+    private int mPhotoWidth = 0, mPhotoHeight = 0;
 
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String TAG = "CrimeFragment";
@@ -202,7 +204,7 @@ public class CrimeFragment extends Fragment {
         if(mPhotoFile==null || !mPhotoFile.exists()){
             mPhotoView.setImageDrawable(null);
         }else {
-            Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(),getActivity());
+            Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(),mPhotoWidth,mPhotoHeight);
             mPhotoView.setImageBitmap(bitmap);
         }
     }
@@ -253,7 +255,25 @@ public class CrimeFragment extends Fragment {
         });
 
         mPhotoView = (ImageView) v.findViewById(R.id.crime_photo);
-        updatePhotoView();
+
+
+        //TODO: Efficient thumbnail load
+        //TODO: I have to read about ViewTreeObserver and then use it for scaling bitmap properly
+        //TODO: I should fire up updatePhotoView only after it will be drawn
+
+        final ViewTreeObserver observer =  mPhotoView.getViewTreeObserver();
+
+        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                    //Log.d(TAG,mPhotoView.getHeight()+" "+mPhotoView.getWidth());
+                    mPhotoHeight = mPhotoView.getHeight();
+                    mPhotoWidth =  mPhotoView.getWidth();
+                    mPhotoView.getViewTreeObserver().removeOnPreDrawListener(this);
+                    updatePhotoView();
+                    return true;
+            }
+        });
 
 
 

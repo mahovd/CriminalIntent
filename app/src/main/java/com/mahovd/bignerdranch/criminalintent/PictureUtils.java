@@ -38,6 +38,7 @@ public class PictureUtils {
 
     }
 
+    //Gets
     public static Bitmap getScaledBitmap(String path, Activity activity){
         Point size = new Point();
         activity.getWindowManager().getDefaultDisplay().getSize(size);
