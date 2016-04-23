@@ -12,6 +12,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;
+import android.widget.TabHost;
 import android.widget.TimePicker;
 
 import java.util.Calendar;
@@ -35,10 +36,14 @@ public class DatePickerFragment extends DialogFragment {
     private static final String ARG_DATE = "date";
     public static final String EXTRA_DATE = "ru.mahovd.bignerdranch.criminalintent.date";
 
+    private static final String TAG_DATE = "date";
+    private static final String TAG_TIME = "time";
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
+        //Get date passed as parameter
         Date date = (Date) getArguments().getSerializable(ARG_DATE);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -50,13 +55,19 @@ public class DatePickerFragment extends DialogFragment {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
-        View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_date, null);
+        //Inflate layout
+        //View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_date, null);
+        View v = createDateTimeTabbedView(getActivity().getLayoutInflater());
 
+        //Get DatePicker and pass initial arguments to it
         mDatePicker = (DatePicker) v.findViewById(R.id.dialog_date_date_picker);
         mDatePicker.init(year,month,day,null);
 
+
+        //Get TimePicker from layout
         mTimePicker = (TimePicker) v.findViewById(R.id.dialog_date_time_picker);
 
+        //Check SDK-version in order to use appropriate method to initialize parameters
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mTimePicker.setHour(hour);
             mTimePicker.setMinute(minute);
@@ -65,7 +76,7 @@ public class DatePickerFragment extends DialogFragment {
             mTimePicker.setCurrentMinute(minute);
         }
 
-
+        //Build dialog
         return new AlertDialog.Builder(getActivity()).
                 setView(v).
                 setTitle(R.string.date_picker_title).
@@ -116,5 +127,33 @@ public class DatePickerFragment extends DialogFragment {
         intent.putExtra(EXTRA_DATE,date);
         getTargetFragment().onActivityResult(getTargetRequestCode(),resultCode,intent);
     }
+
+
+    //create TabbedView
+    private View createDateTimeTabbedView(LayoutInflater layoutInflater){
+
+        //Inflate the XML Layout with tabs
+        View mView = layoutInflater.inflate(R.layout.dialog_date_tabbed,null);
+
+        //Extract the TabHost
+        TabHost mTabHost = (TabHost) mView.findViewById(R.id.tab_host);
+        mTabHost.setup();
+
+        //Create DateTab and add to TabHost
+        TabHost.TabSpec mDateTab = mTabHost.newTabSpec(TAG_DATE);
+        mDateTab.setIndicator("date");
+        mDateTab.setContent(R.id.date_content);
+        mTabHost.addTab(mDateTab);
+
+        //Create TimeTab and add to TabHost
+        TabHost.TabSpec mTimeTab = mTabHost.newTabSpec(TAG_TIME);
+        mTimeTab.setIndicator("time");
+        mTimeTab.setContent(R.id.time_content);
+        mTabHost.addTab(mTimeTab);
+
+        return mView;
+
+    }
+
 
 }

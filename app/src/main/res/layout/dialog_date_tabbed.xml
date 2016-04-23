@@ -18,14 +18,14 @@
 
             <!-- TabWidget that will hold the Tabs -->
             <TabWidget
-                android:id="@+id/tabs"
+                android:id="@android:id/tabs"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 
 
             <!-- Layout that will hold the content of the Tabs -->
             <FrameLayout
-                android:id="@+id/tab_content"
+                android:id="@android:id/tabcontent"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -38,7 +38,7 @@
                     android:layout_height="match_parent">
                     
                     <DatePicker
-                        android:id="@+id/date_picker"
+                        android:id="@+id/dialog_date_date_picker"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:calendarViewShown="false"/>
@@ -54,7 +54,7 @@
                     android:orientation="vertical">
 
                     <TimePicker
-                        android:id="@+id/time_picker"
+                        android:id="@+id/dialog_date_time_picker"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"/>
 
