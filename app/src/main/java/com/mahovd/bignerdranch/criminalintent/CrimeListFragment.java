@@ -1,9 +1,11 @@
 package com.mahovd.bignerdranch.criminalintent;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -49,6 +51,18 @@ public class CrimeListFragment extends Fragment {
 
     private boolean mSubtitleVisible;
 
+    private Callbacks mCallbacks;
+
+    /*Required interface for hosting activities*/
+    public interface Callbacks{
+        void onCrimeSelected(Crime crime);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallbacks = (Callbacks) context;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -168,6 +182,12 @@ public class CrimeListFragment extends Fragment {
         Log.d(TAG, "onResume was called");
 
         updateUI();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
     }
 
     private void updateUI(){
