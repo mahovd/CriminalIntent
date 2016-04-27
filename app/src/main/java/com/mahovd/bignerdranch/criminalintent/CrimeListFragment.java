@@ -142,10 +142,11 @@ public class CrimeListFragment extends Fragment {
             case R.id.menu_item_new_crime:
                 Crime crime = new Crime();
                 CrimeLab.get(getActivity()).addCrime(crime);
-                Intent intent = CrimePagerActivity.newIntent(getActivity(),crime.getId());
-                intent.putExtra(INSERT_MODE,true);
 
-                startActivity(intent);
+                //Should I call updateUI here? I need to check
+                updateUI();
+                mCallbacks.onCrimeSelected(crime);
+
                 return true;
             case R.id.menu_item_show_subtitle:
 
@@ -279,10 +280,11 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            //Toast.makeText(getActivity(),mCrime.getTitle()+" clicked!",Toast.LENGTH_LONG).show();
-            Intent intent = CrimePagerActivity.newIntent(getActivity(),mCrime.getId());
-            //I think I should use startActivityForResult instead just startActivity
-            startActivityForResult(intent, REQUEST_CRIME);
+
+            //TODO: I have to check it. I'm breaking some logic with onActivity result
+            //Intent intent = CrimePagerActivity.newIntent(getActivity(),mCrime.getId());
+            //startActivityForResult(intent, REQUEST_CRIME);
+            mCallbacks.onCrimeSelected(mCrime);
         }
     }
 
