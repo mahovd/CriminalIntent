@@ -41,13 +41,13 @@ public class CrimeListFragment extends Fragment {
     private static final int REQUEST_CRIME = 1;
     private static final String TAG = "CrimeListFragment";
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
-    private static final String INSERT_MODE = "com.mahovd.bignerdranch.insertMode";
 
     private RecyclerView mCrimeRecyclerView;
     private TextView mEmptyView;
     private CrimeAdapter mAdapter;
-    private UUID idChangedItem;
-    private boolean isChangedItemWasDeleted = false;
+
+    public static UUID idChangedItem;
+    public static boolean isChangedItemWasDeleted = false;
 
     private boolean mSubtitleVisible;
 
@@ -104,22 +104,10 @@ public class CrimeListFragment extends Fragment {
 
         Log.d(TAG, "onActivityResult called " + "requestCode: " + requestCode);
 
-
         if(resultCode != Activity.RESULT_OK){
             return;
         }
-        if(requestCode == REQUEST_CRIME){
-            if(data==null){
-                return;
-            }else{
-                Log.d(TAG, "onActivityResult and data is not null");
-                idChangedItem = (UUID) data.getSerializableExtra(CrimeFragment.EXTRA_CRIME_ID);
-                if(data.getBooleanExtra(CrimeFragment.EXTRA_CRIME_DELETED,false)){
-                   isChangedItemWasDeleted = true;
-                }
-                updateUI();
-            }
-        }
+
     }
 
     @Override
@@ -191,7 +179,7 @@ public class CrimeListFragment extends Fragment {
         mCallbacks = null;
     }
 
-    private void updateUI(){
+    public void updateUI(){
 
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();

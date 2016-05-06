@@ -21,7 +21,9 @@ import java.util.UUID;
  * Created by mahovd on 24/11/15.
  * Controller
  */
-public class CrimePagerActivity extends AppCompatActivity {
+public class CrimePagerActivity
+        extends AppCompatActivity
+        implements CrimeFragment.Callbacks{
 
     private static final String TAG = "CrimePagerActivity";
 
@@ -39,6 +41,13 @@ public class CrimePagerActivity extends AppCompatActivity {
         intent.putExtra(EXTRA_CRIME_ID, crimeID);
 
         return intent;
+    }
+
+    //CrimeFragment.Callbacks is supposed to be implemented in every activity which
+    //hosts CrimeFragment so I provide empty implementation of onCrimeUpdated here
+    @Override
+    public void onCrimeUpdated(Crime crime) {
+
     }
 
     @Override

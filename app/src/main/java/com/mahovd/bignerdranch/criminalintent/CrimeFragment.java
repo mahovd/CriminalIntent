@@ -1,6 +1,7 @@
 package com.mahovd.bignerdranch.criminalintent;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -63,6 +64,19 @@ public class CrimeFragment extends Fragment {
     private static final int REQUEST_CONTACT = 1;
     private static final int REQUEST_PHOTO = 2;
 
+    private Callbacks mCallbacks;
+
+    /*Required interface for hosting activities*/
+    public interface Callbacks{
+        void onCrimeUpdated(Crime crime);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallbacks = (Callbacks) context;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,6 +117,7 @@ public class CrimeFragment extends Fragment {
         if(requestCode==REQUEST_DATE){
             Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setDate(date);
+            updateCrime();
             updateDate();
         }
 
@@ -127,6 +142,7 @@ public class CrimeFragment extends Fragment {
                 Long suspectId = c.getLong(1);
                 mCrime.setSuspect(suspect);
                 mCrime.setSuspectId(suspectId);
+                updateCrime();
                 mSuspectButton.setText(suspect);
                 mCallSuspectButton.setEnabled(true);
             } finally {
@@ -135,9 +151,16 @@ public class CrimeFragment extends Fragment {
         }
 
         if(requestCode==REQUEST_PHOTO){
+            updateCrime();
             updatePhotoView();
         }
 
+    }
+
+    //Updates crime in DB and calls method for updating it in CrimeListFragment
+    private void updateCrime(){
+        CrimeLab.get(getActivity()).updateCrime(mCrime);
+        mCallbacks.onCrimeUpdated(mCrime);
     }
 
     @Override
@@ -225,6 +248,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mCrime.setTitle(s.toString());
+                updateCrime();
             }
 
             @Override
@@ -316,6 +340,7 @@ public class CrimeFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 //Set the crime's solved property
                 mCrime.setSolved(isChecked);
+                updateCrime();
                 Log.d(TAG, "crime_solved was changed");
                 //returnResult(false);
             }
@@ -420,4 +445,9 @@ public class CrimeFragment extends Fragment {
 
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
+    }
 }

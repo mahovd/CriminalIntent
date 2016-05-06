@@ -19,6 +19,7 @@ public abstract class SingleFragmentActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Gets proper layout depends on device display size in dp (width)
         setContentView(getLayoutResId());
 
         FragmentManager fm = getSupportFragmentManager();
