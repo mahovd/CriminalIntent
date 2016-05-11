@@ -63,6 +63,7 @@ public class CrimeFragment extends Fragment {
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_CONTACT = 1;
     private static final int REQUEST_PHOTO = 2;
+    private static boolean isMultiPaneMode = false;
 
     private Callbacks mCallbacks;
 
@@ -97,7 +98,7 @@ public class CrimeFragment extends Fragment {
         CrimeLab.get(getActivity()).updateCrime(mCrime);
     }
 
-    public static CrimeFragment newInstance(UUID crimeId){
+    public static CrimeFragment newInstance(UUID crimeId, boolean multiPaneMode){
 
         //We have to persist our main argument in fragment arguments,
         //because at this way it won't be thrown away if configuration changes
@@ -106,6 +107,9 @@ public class CrimeFragment extends Fragment {
 
         CrimeFragment fragment = new CrimeFragment();
         fragment.setArguments(args);
+
+        isMultiPaneMode = multiPaneMode;
+
         return fragment;
     }
 
@@ -174,12 +178,14 @@ public class CrimeFragment extends Fragment {
 
         switch (item.getItemId()){
             case R.id.menu_item_del_crime:
-                if(CrimePagerActivity.isWorkModeInsert){
-                    CrimeLab.get(getActivity()).delCrime(mCrime);
-                }else{
+                if(!isMultiPaneMode){
                     returnResult(true);
+                    getActivity().finish();
+                }else{
+                    CrimeListFragment.idChangedItem = mCrime.getId();
+                    CrimeListFragment.isChangedItemWasDeleted = true;
+                    mCallbacks.onCrimeUpdated(mCrime);
                 }
-                getActivity().finish();
                 return true;
             case android.R.id.home:
                 //TODO: I shouldn't forget about Back button
@@ -281,9 +287,6 @@ public class CrimeFragment extends Fragment {
         mPhotoView = (ImageView) v.findViewById(R.id.crime_photo);
 
 
-        //TODO: Efficient thumbnail load
-        //TODO: I have to read about ViewTreeObserver and then use it for scaling bitmap properly
-        //TODO: I should fire up updatePhotoView only after it will be drawn
 
         final ViewTreeObserver observer =  mPhotoView.getViewTreeObserver();
 

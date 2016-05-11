@@ -56,6 +56,7 @@ public class CrimeListFragment extends Fragment {
     /*Required interface for hosting activities*/
     public interface Callbacks{
         void onCrimeSelected(Crime crime);
+        void onCrimeSwiped();
     }
 
     @Override
@@ -93,6 +94,7 @@ public class CrimeListFragment extends Fragment {
             mSubtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
         }
 
+        Log.d(TAG,"updateUI in onCreateView was called");
         updateUI();
 
         return view;
@@ -132,6 +134,7 @@ public class CrimeListFragment extends Fragment {
                 CrimeLab.get(getActivity()).addCrime(crime);
 
                 //Should I call updateUI here? I need to check
+                Log.d(TAG,"updateUI in onOptionsItemSelected was called");
                 updateUI();
                 mCallbacks.onCrimeSelected(crime);
 
@@ -170,6 +173,7 @@ public class CrimeListFragment extends Fragment {
         super.onResume();
         Log.d(TAG, "onResume was called");
 
+        Log.d(TAG,"updateUI in onResume was called");
         updateUI();
     }
 
@@ -180,6 +184,7 @@ public class CrimeListFragment extends Fragment {
     }
 
     public void updateUI(){
+
 
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
@@ -269,9 +274,6 @@ public class CrimeListFragment extends Fragment {
         @Override
         public void onClick(View v) {
 
-            //TODO: I have to check it. I'm breaking some logic with onActivity result
-            //Intent intent = CrimePagerActivity.newIntent(getActivity(),mCrime.getId());
-            //startActivityForResult(intent, REQUEST_CRIME);
             mCallbacks.onCrimeSelected(mCrime);
         }
     }
@@ -325,7 +327,7 @@ public class CrimeListFragment extends Fragment {
             notifyItemRemoved(position);
         }
 
-        //TODO: Method onItemMove isn't called. Fix it.
+        //TODO: The state of a moved Item doesn't retain after screen rotating
         public boolean onItemMove(int fromPosition, int toPosition){
 
             if(fromPosition < toPosition) {
@@ -369,7 +371,10 @@ public class CrimeListFragment extends Fragment {
             Log.d(TAG, "onSwiped was called");
             CrimeLab.get(getActivity()).delCrime(mCrimeAdapter.mCrimes.get(viewHolder.getAdapterPosition()));
             mCrimeAdapter.onItemRemove(viewHolder.getAdapterPosition());
+            Log.d(TAG,"updateUI in onSwiped was called");
             updateUI();
+            mCallbacks.onCrimeSwiped();
+
         }
     }
 

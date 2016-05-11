@@ -28,8 +28,6 @@ public class CrimePagerActivity
     private static final String TAG = "CrimePagerActivity";
 
     private static final String EXTRA_CRIME_ID = "com.mahovd.bignerdranch.criminalintent.crime_id";
-    private static final String INSERT_MODE = "com.mahovd.bignerdranch.insertMode";
-    public static boolean isWorkModeInsert = false;
 
     private ViewPager mViewPager;
     private List<Crime> mCrimes;
@@ -57,7 +55,6 @@ public class CrimePagerActivity
         setContentView(R.layout.activity_crime_pager);
 
         final UUID crimeId = (UUID) getIntent().getSerializableExtra(EXTRA_CRIME_ID);
-        isWorkModeInsert = getIntent().getBooleanExtra(INSERT_MODE,false);
 
 
         mViewPager = (ViewPager) findViewById(R.id.activity_crime_pager_view_pager);
@@ -69,7 +66,7 @@ public class CrimePagerActivity
             @Override
             public Fragment getItem(int position) {
                 Crime crime = mCrimes.get(position);
-                return CrimeFragment.newInstance(crime.getId());
+                return CrimeFragment.newInstance(crime.getId(),false);
             }
 
             @Override

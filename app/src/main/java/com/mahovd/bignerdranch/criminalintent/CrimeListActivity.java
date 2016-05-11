@@ -3,6 +3,7 @@ package com.mahovd.bignerdranch.criminalintent;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 
 import java.util.UUID;
@@ -63,7 +64,7 @@ public class CrimeListActivity
             //startActivity(intent);
             startActivityForResult(intent,REQUEST_CRIME);
         } else{
-            Fragment newDetail = CrimeFragment.newInstance(crime.getId());
+            Fragment newDetail = CrimeFragment.newInstance(crime.getId(),true);
             getSupportFragmentManager().beginTransaction().
                     replace(R.id.detail_fragment_container,newDetail).commit();
         }
@@ -74,8 +75,41 @@ public class CrimeListActivity
     //Updates UI of fragment after certain crime was changed
     @Override
     public void onCrimeUpdated(Crime crime) {
-        CrimeListFragment listFragment = (CrimeListFragment) getSupportFragmentManager().
+
+        FragmentManager fm = getSupportFragmentManager();
+
+        CrimeListFragment listFragment = (CrimeListFragment) fm.
                 findFragmentById(R.id.fragment_container);
+        Log.d(TAG,"updateUI in onCrimeUpdated was called");
+
+
+        //If we work with two-pane activity and one of the crimes
+        //was deleted then we have to remove the CrimeFragment
+        //and call CrimeListFragment.updateUI twice
+        if(listFragment.isChangedItemWasDeleted
+                && findViewById(R.id.detail_fragment_container) != null){
+            CrimeFragment detailFragment = (CrimeFragment) fm.
+                    findFragmentById(R.id.detail_fragment_container);
+            fm.beginTransaction().remove(detailFragment).commit();
+            listFragment.updateUI();
+        }
+
+
         listFragment.updateUI();
+
+    }
+
+    @Override
+    public void onCrimeSwiped() {
+
+        FragmentManager fm = getSupportFragmentManager();
+
+        if(findViewById(R.id.detail_fragment_container) != null){
+            CrimeFragment detailFragment = (CrimeFragment) fm.
+                    findFragmentById(R.id.detail_fragment_container);
+            fm.beginTransaction().remove(detailFragment).commit();
+        }
+
+
     }
 }
