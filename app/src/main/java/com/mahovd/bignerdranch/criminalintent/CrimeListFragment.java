@@ -101,16 +101,6 @@ public class CrimeListFragment extends Fragment {
 
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        Log.d(TAG, "onActivityResult called " + "requestCode: " + requestCode);
-
-        if(resultCode != Activity.RESULT_OK){
-            return;
-        }
-
-    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
